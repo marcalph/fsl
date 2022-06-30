@@ -10,7 +10,7 @@ from torchvision import transforms
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
-from utils import FSLMixin, ModelMixin
+from utils import FSDataMixin, ModelMixin
 from torch.optim import AdamW
 import torchvision
 import clip
