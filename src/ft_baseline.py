@@ -20,7 +20,7 @@ DATA_MEANS, DATA_STD = [0.48145466, 0.4578275, 0.40821073], [0.229, 0.224, 0.225
 
 
 class ResNetClassifier(ModelMixin, FSDataMixin, pl.LightningModule):
-    def __init__(self, num_classes=8, shot_pct=.2, optimizer=AdamW, lr=1e-4, l2=1e-3, batch_size=8, fc_only=True):
+    def __init__(self, num_classes=8, shot_pct=.2, optimizer=AdamW, lr=1e-4, l2=1e-3, batch_size=32, fc_only=True):
         super().__init__()
 
         self.save_hyperparameters()
@@ -41,7 +41,7 @@ class ResNetClassifier(ModelMixin, FSDataMixin, pl.LightningModule):
         return self.resnet_model(X)
 
     def configure_optimizers(self):
-        return self.hparams.optimizer(self.parameters(), lr=self.hparams.lr) #, weight_decay=self.hparams.l2)
+        return self.hparams.optimizer(self.parameters(), lr=self.hparams.lr, weight_decay=self.hparams.l2)
 
 
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     logger = TensorBoardLogger("logs", name="resnet_baseline_simple")
     save_ckpt = ModelCheckpoint(dirpath="models", filename=f'resnet{model.hparams.shot_pct}'+'{epoch}', save_weights_only=True, mode="max", monitor="val_acc")
-    stop_early = EarlyStopping(patience=1, mode="min", monitor="val_loss")
+    stop_early = EarlyStopping(patience=5, mode="min", monitor="val_loss")
 
     trainer_args = {'log_every_n_steps': 3,
                     'max_epochs': 100,
