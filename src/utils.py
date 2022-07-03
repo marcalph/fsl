@@ -1,21 +1,17 @@
 import pathlib
-import matplotlib.pyplot as plt
-from torchvision.datasets import ImageFolder
-from torchvision.models import resnet50
+
+import pytorch_lightning as pl
 import torch
-import torch.nn as nn
 import torch.optim
+from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 from torchvision import transforms
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.loggers import TensorBoardLogger
-from sklearn.model_selection import train_test_split
+from torchvision.datasets import ImageFolder
 
-# TODO recompute means std
-# TODO make viz
 FEW_SHOT_DATA = pathlib.Path("data/coco_crops_few_shot")
+ZERO_SHOT_DATA = pathlib.Path("data/coco_crops_zero_shot")
 MODELS = pathlib.Path("models")
+
 DATA_MEANS, DATA_STD = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]  # imagenet numbers
 DATA_MEANS, DATA_STD = [0.48145466, 0.4578275, 0.40821073], [
     0.26862954,
@@ -38,7 +34,9 @@ class FSDataMixin:
         )
         if self.hparams.shot_pct != 1:
             pl.seed_everything(42)
-            train_dataset = ImageFolder(FEW_SHOT_DATA / "train", transform=train_transform)
+            train_dataset = ImageFolder(
+                FEW_SHOT_DATA / "train", transform=train_transform
+            )
             train_indices, _ = train_test_split(
                 list(range(len(train_dataset.targets))),
                 test_size=1 - self.hparams.shot_pct,
@@ -46,7 +44,9 @@ class FSDataMixin:
             )
             train_dataset = torch.utils.data.Subset(train_dataset, train_indices)
         else:
-            train_dataset = ImageFolder(FEW_SHOT_DATA / "train", transform=train_transform)
+            train_dataset = ImageFolder(
+                FEW_SHOT_DATA / "train", transform=train_transform
+            )
         return DataLoader(
             train_dataset, batch_size=self.hparams.batch_size, shuffle=True
         )
@@ -60,7 +60,9 @@ class FSDataMixin:
             ]
         )
         if self.hparams.shot_pct != 1:
-            train_dataset = ImageFolder(FEW_SHOT_DATA / "train", transform=test_transform)
+            train_dataset = ImageFolder(
+                FEW_SHOT_DATA / "train", transform=test_transform
+            )
             pl.seed_everything(42)
             _, val_indices = train_test_split(
                 list(range(len(train_dataset.targets))),

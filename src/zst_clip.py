@@ -1,17 +1,11 @@
-import torch
 import clip
-from torchvision.datasets import ImageFolder
-from torch.utils.data import DataLoader
-from utils import FEW_SHOT_DATA, FSDataMixin
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import TensorBoardLogger
+from torch.utils.data import DataLoader
 from torchvision import transforms
+from torchvision.datasets import ImageFolder
 
-DATA_MEANS, DATA_STD = [0.48145466, 0.4578275, 0.40821073], [
-  0.26862954, 0.26130258, 0.27577711
-]  # clip numbers
-
-
+from utils import DATA_MEANS, DATA_STD, FEW_SHOT_DATA
 
 
 class ClipZSTClassifier(pl.LightningModule):

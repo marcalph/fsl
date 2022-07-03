@@ -1,3 +1,8 @@
 # TODO recompute means std
-# todo data mixin
+# TODO data mixin
 # TODO make viz
+# TODO repo clean
+# TODO code clean
+# TODO error analysis
+# TODO EDA
+# TODO proto/maml
