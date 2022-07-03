@@ -3,6 +3,8 @@ fsl
 
 fsl/zsl takehome assignment
 
+The project layout is adapted from <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template.
+
 Project Organization
 ------------
 
@@ -17,5 +19,3 @@ Project Organization
     │                         generated with `pip freeze > requirements.txt`
     └── src                <- Source code used in this project.
 --------
-
-<p><small>The project layout is adapted from <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
