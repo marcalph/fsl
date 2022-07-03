@@ -1,3 +1,8 @@
+""" utils
+    - paths variables
+    - generic data mixin
+    - generic training mixin
+"""
 import pathlib
 
 import pytorch_lightning as pl

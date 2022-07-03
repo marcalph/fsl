@@ -1,3 +1,4 @@
+""" Clip finetuning class """
 import clip
 import pytorch_lightning as pl
 import torch
