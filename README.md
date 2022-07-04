@@ -8,11 +8,13 @@ The few shot implementation used here is a simple classification head similar to
 Due to the low regimen data little effort is put into to this classification head, the same holds for data autgmentation and preprocessing (normalization-wise).
 We finetune a simple resnet50 to act as a baseline.
 We confront this baseline with 2 of the CLIP model family (one with the resnet50 backbone, another with the ViT backbone).
+
+PS: A more traditionnal FSL/meta learning was started for little results due to computing power.
 ### Zero-shot
 For the zero-shot transfer, we follow the logic proposed in the paper.
 A simple OOD detection is proposed leveraging the same zero-shot approach.
 
-
+PS: Our initial idea was to use/train an image descriptor but the simple approach discussed above provided decent results.
 ### Project Organization
 The project layout is adapted from <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template.
 
