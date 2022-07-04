@@ -52,9 +52,8 @@ class ClipClassifier(ModelMixin, FSDataMixin, pl.LightningModule):
 
 if __name__ == "__main__":
     model = ClipClassifier(shot_pct=1.0)
-
     logger = TensorBoardLogger("logs", name=f"{model.hparams.clip_kind}_baseline")
-    stop_early = EarlyStopping(patience=10, mode="min", monitor="val_loss")
+    stop_early = EarlyStopping(patience=5, mode="min", monitor="val_loss")
     save_ckpt = ModelCheckpoint(
         dirpath="models",
         filename=f"{model.hparams.clip_kind}{model.hparams.shot_pct}" + "{epoch}",
@@ -66,7 +65,7 @@ if __name__ == "__main__":
 
     trainer_args = {
         "log_every_n_steps": 3,
-        "max_epochs": 100,
+        "max_epochs": 50,
         "logger": logger,
         "callbacks": [save_ckpt, stop_early],
     }
@@ -77,3 +76,4 @@ if __name__ == "__main__":
     trainer.fit(model)
     trainer.validate(model)
     trainer.test(model)
+    print(save_ckpt.best_model_path)

@@ -32,11 +32,13 @@ class FSDataMixin:
         train_transform = transforms.Compose(
             [
                 transforms.RandomResizedCrop(224, scale=(0.8, 1.0), ratio=(0.9, 1.1)),
+                transforms.RandomRotation(5),
                 transforms.RandomHorizontalFlip(0.3),
                 transforms.ToTensor(),
                 transforms.Normalize(DATA_MEANS, DATA_STD),
             ]
         )
+
         if self.hparams.shot_pct != 1:
             pl.seed_everything(42)
             train_dataset = ImageFolder(

@@ -76,7 +76,6 @@ class FewShotBatchSampler:
             self.class_list = np.array(self.class_list)[np.argsort(sort_idxs)].tolist()
 
     def shuffle_data(self):
-        # Shuffle the examples per class
         for c in self.classes:
             perm = torch.randperm(self.indices_per_class[c].shape[0])
             self.indices_per_class[c] = self.indices_per_class[c][perm]
@@ -215,15 +214,20 @@ class ProtoNet(pl.LightningModule):
 
 
 if __name__ == "__main__":
-    trainer = pl.Trainer(
-        gpus=1 if str(device) == "cuda:0" else 0,
-        max_epochs=200,
-        callbacks=[
+    from pytorch_lightning.loggers import TensorBoardLogger
+
+    logger = TensorBoardLogger("logs", name="resnet_baseline_simple")
+
+    trainer_args = {
+        "log_every_n_steps": 3,
+        "max_epochs": 100,
+        "logger": logger,
+        "callbacks": [
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=0,
-    )
+    }
+    trainer = pl.Trainer(**trainer_args)
     trainer.logger._default_hp_metric = None
     model = ProtoNet(proto_dim=64, lr=2e-4)
     trainer.fit(model, train_data_loader, train_data_loader)

@@ -1,4 +1,5 @@
 """ Basic resnet finetuning baseline for comparison purposes """
+
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
@@ -48,30 +49,30 @@ class ResNetClassifier(ModelMixin, FSDataMixin, pl.LightningModule):
 
 
 if __name__ == "__main__":
-    model = ResNetClassifier(num_classes=8, shot_pct=1.0)
+    for shot in [0.2, 0.4, 0.6, 0.8, 1.0]:
+        model = ResNetClassifier(num_classes=8, shot_pct=shot)
+        logger = TensorBoardLogger("logs", name="resnet_baseline")
+        stop_early = EarlyStopping(patience=5, mode="min", monitor="val_loss")
+        save_ckpt = ModelCheckpoint(
+            dirpath="models",
+            filename=f"resnet{model.hparams.shot_pct}",
+            save_top_k=1,
+            save_weights_only=True,
+            mode="max",
+            monitor="val_acc",
+        )
 
-    logger = TensorBoardLogger("logs", name="resnet_baseline_simple")
-    save_ckpt = ModelCheckpoint(
-        dirpath="models",
-        filename=f"resnet{model.hparams.shot_pct}" + "{epoch}",
-        save_weights_only=True,
-        mode="max",
-        monitor="val_acc",
-    )
-    stop_early = EarlyStopping(patience=5, mode="min", monitor="val_loss")
+        trainer_args = {
+            "log_every_n_steps": 3,
+            "max_epochs": 50,
+            "logger": logger,
+            "callbacks": [save_ckpt, stop_early],
+        }
 
-    trainer_args = {
-        "log_every_n_steps": 3,
-        "max_epochs": 100,
-        "logger": logger,
-        "callbacks": [save_ckpt, stop_early],
-    }
-
-    trainer = pl.Trainer(**trainer_args)
-    trainer.logger._default_hp_metric = None
-    trainer.fit(
-        model,
-    )
-    trainer.validate(model)
-    trainer.test(model)
-    print(save_ckpt.best_model_path)
+        trainer = pl.Trainer(**trainer_args)
+        trainer.logger._log_graph = True
+        trainer.logger._default_hp_metric = None
+        trainer.fit(model)
+        trainer.validate(model)
+        trainer.test(model)
+        print(save_ckpt.best_model_path)
