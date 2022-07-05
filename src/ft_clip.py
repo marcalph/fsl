@@ -33,8 +33,15 @@ class ClipClassifier(ModelMixin, FSDataMixin, pl.LightningModule):
         self.clip_model, _ = clip.load(
             clip_kind
         )  # ignore preprocess as it should be handle by dataloader
-        self.linear_clf = nn.Linear(self.clip_model.visual.output_dim, num_classes)
+        # self.linear_clf = nn.Linear(self.clip_model.visual.output_dim, num_classes)
 
+        self.linear_clf = self.classifier = nn.Sequential(
+            nn.Linear(self.clip_model.visual.output_dim, 512),
+            nn.ReLU(inplace=True),
+            nn.Linear(512, 512),
+            nn.ReLU(inplace=True),
+            nn.Linear(512, num_classes),
+        )
         if fc_only:  # freeze encoding
             for child in self.clip_model.children():
                 for param in child.parameters():
@@ -51,29 +58,30 @@ class ClipClassifier(ModelMixin, FSDataMixin, pl.LightningModule):
 
 
 if __name__ == "__main__":
-    model = ClipClassifier(shot_pct=1.0)
-    logger = TensorBoardLogger("logs", name=f"{model.hparams.clip_kind}_baseline")
-    stop_early = EarlyStopping(patience=5, mode="min", monitor="val_loss")
-    save_ckpt = ModelCheckpoint(
-        dirpath="models",
-        filename=f"{model.hparams.clip_kind}{model.hparams.shot_pct}" + "{epoch}",
-        save_top_k=1,
-        save_weights_only=True,
-        mode="max",
-        monitor="val_acc",
-    )
+    for shot in [0.2, 0.4, 0.6, 0.8, 1.0]:
+        model = ClipClassifier(clip_kind="RN50", shot_pct=shot)
+        logger = TensorBoardLogger("logs", name=f"{model.hparams.clip_kind}_baseline")
+        stop_early = EarlyStopping(patience=5, mode="min", monitor="val_loss")
+        save_ckpt = ModelCheckpoint(
+            dirpath="models",
+            filename=f"{model.hparams.clip_kind}ml{model.hparams.shot_pct}" + "{epoch}",
+            save_top_k=1,
+            save_weights_only=True,
+            mode="max",
+            monitor="val_acc",
+        )
 
-    trainer_args = {
-        "log_every_n_steps": 3,
-        "max_epochs": 50,
-        "logger": logger,
-        "callbacks": [save_ckpt, stop_early],
-    }
+        trainer_args = {
+            "log_every_n_steps": 3,
+            "max_epochs": 50,
+            "logger": logger,
+            "callbacks": [save_ckpt, stop_early],
+        }
 
-    trainer = pl.Trainer(**trainer_args)
-    trainer.logger._log_graph = True
-    trainer.logger._default_hp_metric = None
-    trainer.fit(model)
-    trainer.validate(model)
-    trainer.test(model)
-    print(save_ckpt.best_model_path)
+        trainer = pl.Trainer(**trainer_args)
+        trainer.logger._log_graph = True
+        trainer.logger._default_hp_metric = None
+        trainer.fit(model)
+        trainer.validate(model)
+        trainer.test(model)
+        print(save_ckpt.best_model_path)

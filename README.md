@@ -15,6 +15,12 @@ For the zero-shot transfer, we follow the logic proposed in the paper.
 A simple OOD detection is proposed leveraging the same zero-shot approach.
 
 PS: Our initial idea was to use/train an image descriptor but the simple approach discussed above provided decent results.
+
+### Results
+The below figure provides a way to appreciate some of the results. Tensorboards logs are provided for transparency.
+![fig](reports/figures/FSL_ZSL_figure.png)
+
+
 ### Project Organization
 The project layout is adapted from <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template.
 

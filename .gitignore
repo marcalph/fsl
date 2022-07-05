@@ -77,7 +77,6 @@ target/
 
 # exclude data from source control by default
 models/
-logs/
 lightning_logs/
 
 # Mac OS-specific storage files

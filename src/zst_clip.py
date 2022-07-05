@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
-from utils import DATA_MEANS, DATA_STD, FEW_SHOT_DATA
+from utils import DATA_MEANS, DATA_STD, FEW_SHOT_DATA, ZERO_SHOT_DATA
 
 
 class ClipZSTClassifier(pl.LightningModule):
@@ -14,6 +14,10 @@ class ClipZSTClassifier(pl.LightningModule):
 
         self.save_hyperparameters()
         self.clip_model, _ = clip.load("ViT-B/32")
+        self.templates = None
+
+    def enable_ood_detection(self):
+        self.classes = ["different object"] + self.classes
 
     def test_dataloader(self):
         test_transform = transforms.Compose(
@@ -55,3 +59,14 @@ if __name__ == "__main__":
     trainer = pl.Trainer(**trainer_args)
 
     trainer.test(model)
+    test_transform = transforms.Compose(
+        [
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize(DATA_MEANS, DATA_STD),
+        ]
+    )
+    zs_dataset = ImageFolder(ZERO_SHOT_DATA / "test", transform=test_transform)
+    zs_dl = DataLoader(zs_dataset, batch_size=16, shuffle=False)
+    model.enable_ood_detection()
+    trainer.test(model, zs_dl)
